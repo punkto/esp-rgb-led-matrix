@@ -96,7 +96,7 @@ public:
         m_isConnectionError(false),
         m_currentTemp("\\calign?"),
         m_currentWeatherIcon(IMAGE_PATH_STD_ICON),
-        m_currentUvIndex("\\calign?"),
+        m_currentPressure("\\calign?"),
         m_currentHumidity("\\calign?"),
         m_currentWindspeed("\\calign?"),
         m_hasWeatherIconChanged(true),
@@ -117,7 +117,8 @@ public:
      */
     enum OtherWeatherInformation
     {
-        OTHER_WEATHER_INFO_UVI = 0,     /**< Display UV Index as additional information. */
+        OTHER_WEATHER_INFO_TEMPERATURE = 0,     /**<  */
+        OTHER_WEATHER_INFO_PRESSURE ,     /**< Display temnperature as additional information. */
         OTHER_WEATHER_INFO_HUMIDITY,    /**< Display humidity in % as additional information. */
         OTHER_WEATHER_INFO_WIND,        /**< Display windspeed in m/s as additional information. */
         OTHER_WEATHER_INFO_OFF          /**< Display only general weather information. */
@@ -465,7 +466,7 @@ private:
     String                      m_apiKey;                   /**< OpenWeather API Key */
     String                      m_latitude;                 /**< The latitude. */
     String                      m_longitude;                /**< The longitude. */
-    OtherWeatherInformation     m_additionalInformation;    /**< The configured additional weather information. */
+    OtherWeatherInformation     m_additionalInformation;    /**< The weather info that s being displayed */
     String                      m_units;                    /**< The units. */
     String                      m_configurationFilename;    /**< String used for specifying the configuration filename. */
     AsyncHttpClient             m_client;                   /**< Asynchronous HTTP client. */
@@ -475,7 +476,7 @@ private:
     bool                        m_isConnectionError;        /**< Is connection error happened? */
     String                      m_currentTemp;              /**< The current temperature. */
     String                      m_currentWeatherIcon;       /**< The current weather condition icon. */
-    String                      m_currentUvIndex;           /**< The current UV index. */
+    String                      m_currentPressure;          /**< The current pressure. */
     String                      m_currentHumidity;          /**< The current humidity. */
     String                      m_currentWindspeed;         /**< The current wind speed. */
     bool                        m_hasWeatherIconChanged;    /**< Has weather icon changed? If yes, it will be updated otherwise skipped to not disturb running animations. */
