@@ -163,18 +163,21 @@ private:
     uint8_t*    m_heat;     /**< Heat temperature [0; 255] */
     size_t      m_heatSize; /**< Number of heat temperatures */
 
+    static const uint8_t MAX_DELAY = 6;
+    uint8_t delay_counter = 0;
+
     /**
      * Cooling: How much does the air cool as it rises?
      * Less cooling => taller flames.
      * More cooling => shorter flames.
      */
-    static const uint8_t    COOLING     = 60U;
+    static const uint8_t    COOLING     = 60;
 
     /**
      * Sparking: What chance (out of 255) is there that a new spark will be lit?
      * Higher chance = more roaring fire.  Lower chance = more flickery fire.
      */
-    static const uint8_t    SPARKING    = 120U;
+    static const uint8_t    SPARKING    = 80;
 
     /**
      * Approximates a 'black body radiation' spectrum for a given 'heat' level.
