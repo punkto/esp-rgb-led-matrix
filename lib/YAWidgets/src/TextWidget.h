@@ -334,7 +334,7 @@ public:
     }
 
     /** Default text color */
-    static const uint32_t   DEFAULT_TEXT_COLOR      = ColorDef::WHITE;
+    static const uint32_t   DEFAULT_TEXT_COLOR      = ColorDef::ORANGE;
 
     /** Widget type string */
     static const char*      WIDGET_TYPE;
