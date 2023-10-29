@@ -603,7 +603,7 @@ void OpenWeatherPlugin::updateDisplay(bool force)
     /* Reset duration counter after the general weather and the additional weather information
      * were shown for the same amount of time.
      */
-    if ((2U * durationOfEachPart) <= m_durationCounter)
+    if (((uint32_t)(OTHER_WEATHER_INFO_OFF)*durationOfEachPart) <= m_durationCounter)
     {
         m_durationCounter = 0U;
     }
@@ -820,9 +820,8 @@ void OpenWeatherPlugin::initHttpClient()
 
 void OpenWeatherPlugin::handleWebResponse(DynamicJsonDocument &jsonDoc)
 {
-    JsonVariantConst jsonMain = jsonDoc["main"];
-    JsonVariantConst jsonTemperature = jsonMain["temp"];
-    float temperature = -666.0;
+    JsonVariantConst jsonTemperature = jsonDoc["main"]["temp"];
+    float temperature = -6.66;
     if (jsonTemperature.is<float>())
     {
         temperature = jsonTemperature.as<float>();
@@ -833,30 +832,40 @@ void OpenWeatherPlugin::handleWebResponse(DynamicJsonDocument &jsonDoc)
 
         m_currentTemp = "\\calign";
         m_currentTemp += tempReducedPrecison;
-        m_currentTemp += "\x8E";
+        m_currentTemp += " \x8E";
         m_currentTemp += (m_units == "metric") ? "C" : "F";
     }
     else
     {
         LOG_WARNING("JSON temp type mismatch or missing.");
+        m_currentTemp = "\\calignno data";
     }
 
-    JsonVariantConst jsonPressure = jsonMain["pressure"];
-    int pressure = 0;
-    if (jsonPressure.is<int>())
+    if (jsonDoc["main"].containsKey("pressure"))
     {
-        pressure = jsonPressure.as<int>();
-        /* Generate pressure string */
-        m_currentPressure = "\\calign";
-        m_currentPressure += pressure;
-        m_currentPressure += "Pas";
+        JsonVariantConst jsonPressure = jsonDoc["main"]["pressure"];
+        int pressure = 0;
+        if (jsonPressure.is<int>())
+        {
+            pressure = jsonPressure.as<int>();
+            /* Generate pressure string */
+            m_currentPressure = "\\calign";
+            m_currentPressure += pressure;
+            m_currentPressure += " Pas";
+        }
+        else
+        {
+            LOG_WARNING("JSON pressure type mismatch.");
+            m_currentPressure = "\\calign-";
+        }
     }
     else
     {
-        LOG_WARNING("JSON pressure type mismatch or missing.");
+        LOG_WARNING("JSON pressure missing.");
+        m_currentPressure = "\\calignX";
     }
 
-    JsonVariantConst jsonHumidity = jsonMain["humidity"];
+    JsonVariantConst jsonHumidity = jsonDoc["main"]["humidity"];
     int humidity = 0;
     if (jsonHumidity.is<int>())
     {
@@ -864,29 +873,47 @@ void OpenWeatherPlugin::handleWebResponse(DynamicJsonDocument &jsonDoc)
         /* Generate humidity string */
         m_currentHumidity = "\\calign";
         m_currentHumidity += humidity;
-        m_currentHumidity += "%";
+        m_currentHumidity += " %";
     }
     else
     {
         LOG_WARNING("JSON humidity type mismatch or missing.");
+        m_currentHumidity = "\\calignno data";
     }
 
-    JsonVariantConst jsonWindSpeed = jsonDoc["wind"]["speed"];
-    float windSpeed = -6.0;
-    if (jsonWindSpeed.is<float>())
+    if (jsonDoc.containsKey("wind"))
     {
-        windSpeed = jsonWindSpeed.as<float>();
-        LOG_WARNING("JSON wind_speed = %f", windSpeed);
-        /* Generate windspeed string and add unit.*/
-        char windReducedPrecison[10] = {0};
-        (void)snprintf(windReducedPrecison, sizeof(windReducedPrecison), "%.1f", windSpeed);
-        m_currentWindspeed = "\\calign";
-        m_currentWindspeed += windReducedPrecison;
-        m_currentWindspeed += "m/s";
+        if (jsonDoc["wind"].containsKey("speed"))
+        {
+            JsonVariantConst jsonWindSpeed = jsonDoc["wind"]["speed"];
+            float windSpeed = -6.0;
+            if (jsonWindSpeed.is<float>())
+            {
+                windSpeed = jsonWindSpeed.as<float>();
+                LOG_WARNING("JSON wind_speed = %f", windSpeed);
+                /* Generate windspeed string and add unit.*/
+                char windReducedPrecison[10] = {0};
+                (void)snprintf(windReducedPrecison, sizeof(windReducedPrecison), "%.1f", windSpeed);
+                m_currentWindspeed = "\\calign";
+                m_currentWindspeed += windReducedPrecison;
+                m_currentWindspeed += " m/s";
+            }
+            else
+            {
+                LOG_WARNING("JSON wind_speed type mismatch or missing.");
+                m_currentWindspeed = "\\calignno data";
+            }
+        }
+        else
+        {
+            LOG_WARNING("JSON wind.speed missing.");
+            m_currentWindspeed = "\\calignX";
+        }
     }
     else
     {
-        LOG_WARNING("JSON wind_speed type mismatch or missing.");
+        LOG_WARNING("JSON wind missing.");
+        m_currentWindspeed = "\\calignX";
     }
 
     /* Handle icon depended on weather icon id.
